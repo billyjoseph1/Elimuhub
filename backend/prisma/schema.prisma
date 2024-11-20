@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String
+  subjects  Subject[]
+  scores    Score[]
+  goals     Goal[]
+  feedbacks Feedback[]
+}
+
+model Subject {
+  id        Int      @id @default(autoincrement())
+  name      String
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  scores    Score[]
+}
+
+model Score {
+  id             Int      @id @default(autoincrement())
+  value          Float
+  assignmentName String
+  date           DateTime
+  subjectId      Int
+  subject        Subject  @relation(fields: [subjectId], references: [id])
+  userId         Int
+  user           User     @relation(fields: [userId], references: [id])
+  feedback       Feedback?
+}
+
+model Goal {
+  id             Int      @id @default(autoincrement())
+  description    String
+  targetScore    Float
+  achievedScore  Float?
+  deadline       DateTime
+  userId         Int
+  user           User     @relation(fields: [userId], references: [id])
+}
+
+model Feedback {
+  id       Int    @id @default(autoincrement())
+  content  String
+  scoreId  Int    @unique
+  score    Score  @relation(fields: [scoreId], references: [id])
+  userId   Int
+  user     User   @relation(fields: [userId], references: [id])
+}
